@@ -117,9 +117,9 @@
 </template>
 
 <script>
-import CalcOffer from "src/assets/svg/CalcOffer.vue";
-import GraphOffer from "src/assets/svg/GraphOffer.vue";
-import ReportOffer from "src/assets/svg/ReportOffer.vue";
+import CalcOffer from "src/assets/CalcOffer.vue";
+import GraphOffer from "src/assets/GraphOffer.vue";
+import ReportOffer from "src/assets/ReportOffer.vue";
 import { api } from "src/boot/axios";
 import CarouselNews from "src/components/CarouselNews.vue";
 import OfferCy from "src/components/OfferCy.vue";
