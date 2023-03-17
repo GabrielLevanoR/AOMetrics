@@ -5,7 +5,7 @@
         <div class="flex row items-center" style="width: 288px">
           <img
             v-if="!iconBool"
-            src="~assets/images/albionCypherBlack.png"
+            src="../assets/images/albionCypherBlack.png"
             style="height: 90px; cursor: pointer"
             @click="returnToIndex"
           />

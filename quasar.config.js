@@ -52,14 +52,13 @@ module.exports = configure(function (/* ctx */) {
         browser: ["es2019", "edge88", "firefox78", "chrome87", "safari13.1"],
         node: "node16",
       },
-      assetsDir: "assets",
       vueRouterMode: "hash", // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
-      publicPath: "/",
+      // publicPath: "/",
       // analyze: true,
       // env: {},
       // rawDefine: {}

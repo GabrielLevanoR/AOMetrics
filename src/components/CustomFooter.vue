@@ -1,5 +1,7 @@
 <template>
-  <footer><div><span></span></div></footer>
+  <footer>
+    <div><span>Albion Metrics</span></div>
+  </footer>
 </template>
 
 <script setup></script>

@@ -64,7 +64,7 @@ export default {
         for (const guildId in guildCounts) {
           for (const member of members.filter((m) => m.guildId === guildId)) {
             let weaponType;
-            if (member.equipment) {
+            if (member.equipment && member.equipment.mainhand !== null) {
               if (
                 member.equipment.mainhand.length >= 2 &&
                 member.equipment.mainhand[
@@ -89,26 +89,26 @@ export default {
             (m) => m.allianceId === guildId
           )) {
             let weaponType;
-            if (
-              member.equipment.mainhand.length >= 2 &&
-              member.equipment.mainhand[
-                member.equipment.mainhand.length - 2
-              ] === "@"
-            ) {
-              weaponType = member.equipment.mainhand.slice(3, -2);
-            } else {
-              weaponType = member.equipment.mainhand.slice(3);
+            if (member.equipment && member.equipment.mainhand !== null) {
+              if (
+                member.equipment.mainhand.length >= 2 &&
+                member.equipment.mainhand[
+                  member.equipment.mainhand.length - 2
+                ] === "@"
+              ) {
+                weaponType = member.equipment.mainhand.slice(3, -2);
+              } else {
+                weaponType = member.equipment.mainhand.slice(3);
+              }
+              guildCounts[guildId]["weapons"][weaponType] =
+                (guildCounts[guildId]["weapons"][weaponType] || 0) + 1;
             }
-            guildCounts[guildId]["weapons"][weaponType] =
-              (guildCounts[guildId]["weapons"][weaponType] || 0) + 1;
           }
           guildCounts[guildId]["weapons"] = Object.entries(
             guildCounts[guildId]["weapons"]
           ).sort((a, b) => b[1] - a[1]);
         }
       }
-      console.log(guildCounts);
-
       return guildCounts;
     };
     return { compositionPartys, formatNumber };
