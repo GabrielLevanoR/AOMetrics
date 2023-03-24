@@ -1,22 +1,24 @@
 <template>
   <q-page class="flex column">
-    <div class="back-gradient row justify-center">
-      <div class="content-gradient justify-center">
-        <div class="text-gradient column">
-          <h1>More accessible tools</h1>
-          <span
-            >Find a wide variety of graphics in the different activities of
-            Albion Online, such as the price of items in the market, battle
-            reports, among many others.</span
-          >
-        </div>
-        <div class="img-gradient row justify-center">
-          <img
-            class="logo-cy"
-            alt="Quasar logo"
-            src="~assets/images/albionMetricsHd.png"
-            style="width: 100%; max-width: 500px; min-width: 400px"
-          />
+    <div class="back-gradient-under">
+      <div class="back-gradient row justify-center">
+        <div class="content-gradient justify-center">
+          <div class="text-gradient column">
+            <h1>More accessible tools</h1>
+            <span
+              >Find a wide variety of graphics in the different activities of
+              Albion Online, such as the price of items in the market, battle
+              reports, among many others.</span
+            >
+          </div>
+          <div class="img-gradient row justify-center">
+            <img
+              class="logo-cy"
+              alt="Quasar logo"
+              src="~assets/images/albionMetricsHd.png"
+              style="width: 100%; max-width: 500px; min-width: 400px"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -163,16 +165,39 @@ export default defineComponent({
 });
 </script>
 <style scoped lang="scss">
-.back-gradient {
-  min-height: 600px;
-  background: rgb(255, 126, 0);
-  background: linear-gradient(
-    -45deg,
-    rgba(255, 126, 0, 0.24833683473389356) 0%,
-    rgba(254, 254, 0, 0.15029761904761907) 50%,
-    rgba(176, 254, 217, 0.22032563025210083) 100%
-  );
+body.body--dark {
+  .back-gradient-under {
+    background-color: rgb(161, 161, 161);
+  }
+  .dowload-albion {
+    background-color: rgb(161, 161, 161);
+    .container {
+      img {
+        border-color: $darkMode;
+      }
+      .body-container {
+        h4,
+        .description,
+        .icon-bordered, span {
+          background-color: $darkMode;
+        }
+      }
+    }
+  }
 }
+.back-gradient-under {
+  background-color: white;
+  .back-gradient {
+    min-height: 600px;
+    background: linear-gradient(
+      -45deg,
+      rgba(255, 126, 0, 0.24833683473389356) 0%,
+      rgba(254, 254, 0, 0.15029761904761907) 50%,
+      rgba(176, 254, 217, 0.22032563025210083) 100%
+    );
+  }
+}
+
 .content-gradient {
   display: flex;
   flex-direction: row;
@@ -251,7 +276,7 @@ export default defineComponent({
     max-width: 900px;
     img {
       border-radius: 15px;
-      border: 8px solid white;
+      border: 5px solid white;
     }
     .body-container {
       display: flex;

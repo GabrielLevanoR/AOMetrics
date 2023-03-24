@@ -151,6 +151,23 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+body.body--dark {
+  .carousel {
+    .carousel-container {
+      .carousel-card {
+        background-color: $darkMode--bg2;
+        border-color: $divider-dark;
+      }
+      .carousel-content {
+        .my-card {
+          hr {
+            border-color: $divider-dark;
+          }
+        }
+      }
+    }
+  }
+}
 .carousel {
   display: flex;
   flex-direction: column;
@@ -168,7 +185,7 @@ export default defineComponent({
       display: flex;
       max-width: 300px;
       flex-direction: column;
-      border: 1px solid #ccc;
+      border: 2px solid #ccc;
       background-color: white;
       border-radius: 10px;
       margin: 0 10px;

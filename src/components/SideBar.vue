@@ -6,6 +6,7 @@
       size="30px"
       @click="toggleSidebar"
       v-show="iconBool"
+      style="cursor: pointer"
     />
     <div
       class="back-close"
@@ -20,17 +21,20 @@
         <div class="header-side">
           <img
             src="~assets/images/albionCypherWithoutLetters.png"
-            style="height: 72px"
+            style="height: 50px"
           />
           <div class="close-btn">
             <q-icon
               name="fa-solid fa-xmark"
-              color="black"
               size="20px"
               @click="toggleSidebar"
             />
           </div>
         </div>
+        <div class="appearence-dark">
+          <span>Appearence</span> <DarkModeToggle />
+        </div>
+
         <div class="list-navigation">
           <ul v-for="(item, index) in items" :key="item">
             <div v-if="!item.disable">
@@ -70,6 +74,7 @@
 import { ref, nextTick } from "vue";
 import { sideBarBool } from "../stores/sideBar";
 import { useRouter } from "vue-router";
+import DarkModeToggle from "./darkModeToggle.vue";
 export default {
   props: {
     items: {
@@ -98,7 +103,6 @@ export default {
         }
         const innerBoxRight = rect.right;
         const innerBoxBottom = rect.bottom;
-
         const clickX = event.clientX;
         const clickY = event.clientY;
         if (clickX > innerBoxRight || clickY > innerBoxBottom) {
@@ -122,27 +126,11 @@ export default {
       toggleSidebar,
     };
   },
+  components: { DarkModeToggle },
 };
 </script>
 
 <style scoped lang="scss">
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #333;
-  color: #fff;
-  padding: 0.5rem 1rem;
-}
-
-.header button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-}
-
 .back-close {
   background-color: #3b3b3b63;
   width: 100%;
@@ -161,7 +149,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 86px;
+  min-height: 70px;
   img {
     margin-left: 30px;
   }
@@ -172,13 +160,21 @@ export default {
   z-index: 1000;
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
-
+  .appearence-dark {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    color: black;
+    border-top: 1px solid rgb(182, 182, 182);
+    border-bottom: 1px solid rgb(182, 182, 182);
+  }
   .close-btn {
     padding: 10px 20px;
     i {
       cursor: pointer;
-      border: 3px solid rgba(255, 153, 0, 0.541);
-      color: rgba(192, 122, 16, 0.897) !important;
+      border: 2px solid rgb(182, 182, 182);
+      color: rgb(143, 143, 143);
       border-radius: 50%;
       padding: 5px;
     }
@@ -201,7 +197,8 @@ export default {
         justify-content: space-between;
         font-weight: bold;
         padding: 10px 20px;
-        background-color: rgba(230, 139, 3, 0.151);
+        cursor: pointer;
+        background-color: rgb(241, 241, 241);
         .arrow-up {
           transform: rotate(-180deg);
         }

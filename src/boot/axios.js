@@ -8,7 +8,7 @@ import axios from "axios";
 // "export default () => {}" function below (which runs individually
 // for each client)
 const api = axios.create({
-  baseURL: "https://railway-aometrics-production.up.railway.app",
+  baseURL: "https://api.albionmetrics.com",
 });
 
 export default boot(({ app }) => {

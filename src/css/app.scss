@@ -1,5 +1,69 @@
 // app global css in SCSS form
 @import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap");
+
 * {
     font-family: "Rubik", sans-serif;
+}
+.q-table {
+    thead {
+        tr {
+            th {
+                font-weight: bolder;
+            }
+        }
+    }
+    td {
+        border-color: $divider-dark;
+    }
+}
+
+body.body--dark {
+    .bg-white {
+        background: $darkMode--bg2 !important;
+        border: 1px solid $divider-dark;
+    }
+    .q-table--dark {
+        thead {
+            border: none;
+            tr {
+                border: none;
+            }
+        }
+    }
+    .q-card {
+        box-shadow: none;
+        background: $darkMode--bg2;
+    }
+    .q-table__card--dark {
+        box-shadow: none;
+        background: $darkMode;
+        thead {
+            background: $darkMode--bg2;
+        }
+        .q-table__bottom {
+            background: $darkMode--bg2;
+        }
+    }
+    span {
+        color: $text-dark-gray !important;
+    }
+    background: $darkMode;
+    .q-header,
+    .asideCustom {
+        background: $darkMode;
+        color: $text-dark-gray !important;
+    }
+    .list-navigation,
+    .header-tab,
+    .route-to {
+        background: $darkMode--bg2 !important;
+        color: $text-dark-gray !important;
+    }
+    .q-icon {
+        color: $text-dark-gray !important;
+    }
+
+    .q-layout__shadow {
+        display: none;
+    }
 }

@@ -1,16 +1,83 @@
 <template>
   <div
     style="width: 100%; display: flex; justify-content: center; margin: 10px 0"
+    ref="serverTable"
   >
     <q-table
       style="max-width: 1200px; width: 100%"
       :rows="battles.docs"
+      :rows-per-page-options="[20]"
+      v-model:pagination="pagination"
       :columns="columns"
       row-key="time"
       :loading="!battles.docs"
+      @request="onRequest"
     >
       <template v-slot:loading>
         <q-inner-loading showing color="orange" />
+      </template>
+      <template v-slot:pagination="scope">
+        <q-btn
+          v-if="scope.pagesNumber > 2"
+          icon="first_page"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isFirstPage"
+          @click="
+            () => {
+              scope.firstPage();
+              scrollToTable();
+            }
+          "
+        />
+
+        <q-btn
+          icon="chevron_left"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isFirstPage"
+          @click="
+            () => {
+              scope.prevPage();
+              scrollToTable();
+            }
+          "
+        />
+
+        <q-btn
+          icon="chevron_right"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isLastPage"
+          @click="
+            () => {
+              scope.nextPage();
+              scrollToTable();
+            }
+          "
+        />
+
+        <q-btn
+          v-if="scope.pagesNumber > 2"
+          icon="last_page"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isLastPage"
+          @click="
+            () => {
+              scope.lastPage();
+              scrollToTable();
+            }
+          "
+        />
       </template>
       <template v-slot:body="props">
         <q-tr
@@ -25,15 +92,20 @@
             </div>
           </q-td>
           <q-td :props="props" key="guilds">
-            <div class="row-column">
+            <div class="row-row">
               <span
-                v-for="guild in props.row.guilds.list.slice(0, 4)"
+                v-for="guild in props.row.guilds.list.slice(0, 2)"
                 :key="guild"
               >
-                {{ guild }}
+                <span class="spacing"
+                  >{{ guild }}<span class="text-weight-bold">,</span>
+                </span>
               </span>
-              <span class="text-italic" v-if="props.row.guilds.list.length > 4"
-                >... and others</span
+              <span
+                class="text-italic spacing"
+                v-if="props.row.guilds.list.length > 2"
+              >
+                ... and others</span
               >
             </div>
           </q-td>
@@ -53,7 +125,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onUpdated } from "vue";
 import { useRouter } from "vue-router";
 import useFormatNumber from "../composables/useFormatNumber.js";
 
@@ -68,7 +140,13 @@ export default {
       required: true,
     },
   },
-  setup() {
+  setup(props, { emit }) {
+    const pagination = ref({
+      page: 1,
+      rowsPerPage: 20,
+      rowsNumber: 5,
+    });
+    const serverTable = ref(null);
     const { formatNumber } = useFormatNumber();
     const route = useRouter();
     const columns = ref([
@@ -103,7 +181,18 @@ export default {
         field: "totalFame",
       },
     ]);
-
+    const scrollToTable = () => {
+      const table = serverTable.value;
+      const tablePos =
+        table.getBoundingClientRect().top + window.pageYOffset - 100;
+      window.scrollTo({
+        top: tablePos,
+        behavior: "smooth",
+      });
+    };
+    const onRequest = (propert) => {
+      emit("serverSide", propert);
+    };
     const redirectBattle = (row) => {
       route.push({ name: "BattleSelected", params: { id: row.id } });
     };
@@ -123,11 +212,20 @@ export default {
     const shouldApplyCustomStyle = (rowIndex, row) => {
       return rowIndex === 0 && !filteredRows.value.includes(row);
     };
+    onUpdated(() => {
+      pagination.value.rowsNumber = props.battles.totalDocs;
+      pagination.value.rowsPerPage = props.battles.limit;
+      pagination.value.page = props.battles.page ? props.battles.page : 0;
+    });
     return {
       columns,
       formatNumber,
       redirectBattle,
       shouldApplyCustomStyle,
+      onRequest,
+      pagination,
+      serverTable,
+      scrollToTable,
     };
   },
 };
@@ -136,6 +234,13 @@ export default {
 .row-column {
   display: flex;
   flex-direction: column;
+}
+.row-row {
+  display: flex;
+  flex-direction: row;
+}
+.spacing {
+  margin-left: 5px;
 }
 tr {
   cursor: pointer;

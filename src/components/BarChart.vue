@@ -1,15 +1,14 @@
 <template>
   <div
     class="chart-container"
-    v-if="
-      options.xaxis.categories !== ['Loading....'] && sortedSeries.data != [5]
-    "
+    v-if="options.xaxis.categories !== ['L'] && sortedSeries.data != [5]"
   >
     <apexchart
       type="bar"
       height="128"
       :options="options"
       :series="sortedSeries"
+      ref="chart"
     />
   </div>
   <div v-else>
@@ -27,7 +26,8 @@
 
 <script>
 import useFormatNumber from "../composables/useFormatNumber.js";
-import { computed } from "vue";
+import { computed, onUpdated, ref } from "vue";
+import { useQuasar } from "quasar";
 export default {
   props: {
     series: {
@@ -38,7 +38,16 @@ export default {
     format: { required: false, type: String, default: "normal" },
   },
   setup(props) {
+    const $q = useQuasar();
     const { formatNumber } = useFormatNumber();
+    onUpdated(() => {
+      options.value.theme.mode = !$q.dark.isActive ? "dark" : "light";
+      if (chart.value) {
+        chart.value.updateOptions(options.value);
+      }
+    });
+    const chart = ref(null);
+
     const sortedSeries = computed({
       get: () => {
         let sorted = props.series;
@@ -70,6 +79,9 @@ export default {
               left: 0,
             },
           },
+          theme: {
+            mode: $q.dark.isActive ? "dark" : "light",
+          },
           fill: {
             colors: [props.color],
           },
@@ -100,9 +112,7 @@ export default {
           },
           xaxis: {
             categories:
-              props.chartOptions !== undefined
-                ? props.chartOptions
-                : ["Loading..."],
+              props.chartOptions !== undefined ? props.chartOptions : ["L"],
             labels: { show: false },
             grid: {
               show: false,
@@ -114,8 +124,15 @@ export default {
     return {
       options,
       sortedSeries,
+      chart,
     };
   },
 };
 </script>
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.apexcharts-canvas) {
+  svg {
+    background: none !important;
+  }
+}
+</style>

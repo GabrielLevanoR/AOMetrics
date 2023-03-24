@@ -47,7 +47,6 @@ export default {
   setup(props) {
     const { formatNumber } = useFormatNumber();
     const compositionPartys = () => {
-      console.log(props);
       let members = props.indexes;
       const guildCounts = {};
       for (const member of props.arrayItems) {

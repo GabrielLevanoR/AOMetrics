@@ -29,10 +29,19 @@
         </q-card-section>
         <q-separator inset />
         <q-card-section>
+          <div class="custom-section">
+            <div>Searching for new battles in: {{ countdown }}</div>
+            <q-toggle
+              v-model="largeBattle"
+              label="Only big battles"
+              left-label
+            />
+          </div>
           <q-input
             outlined
             v-model="searchRecentBattle"
             label="Search player, guild or alliance"
+            @keyup.enter="getRecentBattles()"
           >
             <template v-slot:append>
               <q-btn round dense flat icon="search" @click="onClickSearch" />
@@ -40,19 +49,26 @@
           </q-input>
         </q-card-section>
       </q-card>
-      <BattleTable :battles="recentBattles" />
+      <BattleTableServerSide
+        :battles="recentBattles"
+        @serverSide="requestBattles"
+      />
     </div>
   </q-page>
 </template>
 <script>
 import { api } from "src/boot/axios";
 import BattleTable from "src/components/BattleTable.vue";
+import BattleTableServerSide from "src/components/BattleTableServerSide.vue";
 import { defineComponent, onMounted, ref, watch, reactive } from "vue";
 import useTimeConverters from "../composables/useTimeConverters.js";
 export default defineComponent({
   setup() {
     const { toFormatDate } = useTimeConverters();
     const topFame = ref([]);
+    const offset = ref(0);
+    const countdown = ref(60);
+    const largeBattle = ref(true);
     const searchRecentBattle = ref("");
     const options = ref(["All", "West", "East"]);
     const selectedServer = reactive({ top: "All", recent: "All" });
@@ -64,41 +80,41 @@ export default defineComponent({
       try {
         let server = selectedServer.top === "All" ? "" : selectedServer.top;
         server = server.toLocaleLowerCase();
-        const response = await api.get(`/battles/top-fame?server=${server}`);
-        topFame.value = response.data.docs;
-        topFame.value[0].firstStyle = true;
-        topFame.value.forEach((item, index) => {
-          topFame.value[index] = {
-            ...topFame.value[index],
-            ...toFormatDate(topFame.value[index].startTime),
-          };
-        });
+        const response = await api.get(
+          `/battles/top-fame?server=${server}&offset=${0}`
+        );
+        topFame.value = response.data;
+        topFame.value = stylingRows(topFame.value);
       } catch (error) {
         console.log(error);
       }
     };
     const getRecentBattles = async () => {
       try {
+        recentBattles.value = {};
         let server =
           selectedServer.recent === "All" ? "" : selectedServer.recent;
         server = server.toLocaleLowerCase();
         const response = await api.get(
-          `/battles?search=${searchRecentBattle.value}&server=${server}`
+          `/battles?search=${searchRecentBattle.value}&server=${server}&offset=${offset.value}&largeOnly=${largeBattle.value}`
         );
-        recentBattles.value = response.data.docs;
-        recentBattles.value[0].firstStyle = true;
-
-        recentBattles.value.forEach((item, index) => {
-          recentBattles.value[index] = {
-            ...recentBattles.value[index],
-            ...toFormatDate(recentBattles.value[index].startTime),
-          };
-        });
+        recentBattles.value = response.data;
+        recentBattles.value = stylingRows(recentBattles.value);
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
     };
-
+    const stylingRows = (battleResp) => {
+      battleResp.docs[0].firstStyle = true;
+      battleResp.docs.forEach((item, index) => {
+        battleResp.docs[index] = {
+          ...battleResp.docs[index],
+          ...toFormatDate(battleResp.docs[index].startTime),
+        };
+      });
+      return battleResp;
+    };
     watch(
       () => selectedServer.top,
       async (newServer, oldServer) => {
@@ -115,6 +131,23 @@ export default defineComponent({
         }
       }
     );
+    watch(
+      () => largeBattle.value,
+      async () => {
+        await getRecentBattles();
+      }
+    );
+    const requestBattles = async (propert) => {
+      offset.value = propert.pagination.page * 20 - 20;
+      await getRecentBattles();
+    };
+    setInterval(async () => {
+      countdown.value--;
+      if (countdown.value === 0) {
+        await getRecentBattles();
+        countdown.value = 60;
+      }
+    }, 1000);
     onMounted(() => {
       getTopFameBattles();
       getRecentBattles();
@@ -126,16 +159,28 @@ export default defineComponent({
       searchRecentBattle,
       recentBattles,
       onClickSearch,
+      requestBattles,
+      largeBattle,
+      getRecentBattles,
+      countdown,
     };
   },
-  components: { BattleTable },
+  components: { BattleTable, BattleTableServerSide },
 });
 </script>
 <style lang="scss" scoped>
+body.body--dark {
+  .custom-page {
+    background: $darkMode;
+  }
+  .title {
+    color: $primary !important;
+  }
+}
 .custom-page {
   display: flex;
   flex-direction: column;
-  background-color: rgba(252, 219, 179, 0.123);
+  background: rgb(248, 248, 248);
 }
 
 .most-fame,

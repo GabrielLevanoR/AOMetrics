@@ -1,5 +1,5 @@
 <template>
-  <q-page class="custom-page flex justify-center" v-if="!battle">
+  <q-page class="custom-page flex justify-center" v-if="loading === 1">
     <div class="loading">
       <q-circular-progress
         indeterminate
@@ -12,11 +12,19 @@
       />
     </div>
   </q-page>
-  <q-page class="custom-page" v-else>
+  <q-page class="custom-page" v-if="loading === 0">
     <div class="battle-desc q-pa-md">
       <q-card>
         <q-card-section class="custom-section">
-          <span class="title">BATTLE REPORT</span>
+          <div>
+            <q-icon
+              name="arrow_back_ios_new"
+              size="1.5em"
+              color="orange"
+              @click="returnToBattles"
+            />
+            <span class="title">BATTLE REPORT</span>
+          </div>
           <OnClickTooltip :textToDisplay="battle.id" />
         </q-card-section>
       </q-card>
@@ -521,19 +529,24 @@
       </div>
     </div>
   </q-page>
+  <q-page class="custom-page" v-if="loading === 2">
+    <div>
+      <WrongSearch /></div
+  ></q-page>
 </template>
 
 <script>
 import { api } from "src/boot/axios";
 import OnClickTooltip from "src/components/OnClickTooltip.vue";
 import { ref, onMounted, nextTick } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import useTimeConverters from "../composables/useTimeConverters.js";
 import useFormatNumber from "../composables/useFormatNumber.js";
 import BarChart from "../components/BarChart.vue";
 import ItemRender from "src/components/itemRender.vue";
 import WrongData from "src/components/wrongData.vue";
 import CompositionPaty from "src/components/compositionPaty.vue";
+import WrongSearch from "src/components/WrongSearch.vue";
 
 export default {
   components: {
@@ -542,11 +555,13 @@ export default {
     ItemRender,
     WrongData,
     CompositionPaty,
+    WrongSearch,
   },
   setup() {
     const { formatNumber } = useFormatNumber();
     const { toFormatDate, timeBetweenDates } = useTimeConverters();
     const route = useRoute();
+    const router = useRouter();
     const battle = ref();
     const chartsToShow = ref([]);
     const filter = ref("");
@@ -715,27 +730,36 @@ export default {
     const showLessGuilds = ref(true);
     const composition = ref();
     const compositionOptions = ref(true);
+    const returnToBattles = () => {
+      router.push({ name: "Battles" });
+    };
+    const loading = ref(1);
     const getBattle = async () => {
       try {
         const response = await api.get(`battles/battle/${route.params.id}`);
-        battle.value = {
-          ...response.data,
-          ...toFormatDate(response.data.startTime),
-        };
-        battle.value = {
-          ...battle.value,
-          duration: timeBetweenDates(
-            new Date(response.data.endTime),
-            new Date(response.data.startTime)
-          ),
-        };
-        if (battle.value.alliances.alliances.length) {
-          battle.value.alliances.alliances[0].firstStyle = true;
+        if (response.data) {
+          battle.value = {
+            ...response.data,
+            ...toFormatDate(response.data.startTime),
+          };
+          battle.value = {
+            ...battle.value,
+            duration: timeBetweenDates(
+              new Date(response.data.endTime),
+              new Date(response.data.startTime)
+            ),
+          };
+          if (battle.value.alliances.alliances.length) {
+            battle.value.alliances.alliances[0].firstStyle = true;
+          }
+          battle.value.guilds.guilds[0].firstStyle = true;
+          nextTick(() => {
+            buildCharts();
+          });
+          loading.value = 0;
+        } else {
+          loading.value = 2;
         }
-        battle.value.guilds.guilds[0].firstStyle = true;
-        nextTick(() => {
-          buildCharts();
-        });
       } catch (error) {
         console.log(error);
       }
@@ -784,7 +808,7 @@ export default {
     };
     const formatData = (tags, valueTag, nameSeries) => {
       for (let i = 0; i < valueTag.length; i++) {
-        if (valueTag[i] === 0) {
+        if (valueTag[i] == 0 || valueTag[i] == null) {
           valueTag[i] = 0.1;
         }
       }
@@ -887,12 +911,22 @@ export default {
       columnsPlayers,
       columnsGuilds,
       filterPlayers,
+      returnToBattles,
+      loading,
     };
   },
 };
 </script>
 
 <style lang="scss" scoped>
+body.body--dark {
+  .q-table__card--dark {
+    background: $darkMode--bg2;
+  }
+  .first-row-style {
+    background-color: rgba(136, 136, 136, 0.199);
+  }
+}
 .battle-desc {
   width: 100%;
 }
@@ -907,8 +941,14 @@ export default {
   .custom-section {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-weight: bold;
     font-size: 16px;
+    .q-icon {
+      margin-right: 8px;
+      top: -1px;
+      cursor: pointer;
+    }
   }
 }
 .battle-desc-body {

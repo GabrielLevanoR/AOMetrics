@@ -59,10 +59,7 @@ module.exports = configure(function (/* ctx */) {
       // vueOptionsAPI: false,
 
       // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
-      publicPath: "/",
-      // analyze: true,
-      // env: {},
-      // rawDefine: {}
+      // publicPath: "/",
       // ignorePublicFolder: true,
       // minify: false,
       // polyfillModulePreload: true,
@@ -107,7 +104,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ["LocalStorage"],
     },
 
     // animations: 'all', // --- includes all animations

@@ -2,22 +2,21 @@
   <div>
     <q-header elevated class="flex row">
       <q-toolbar class="toolbar-cypher">
-        <div class="flex row items-center" style="width: 288px">
+        <div class="flex row items-center logo-header" @click="returnToIndex">
           <img
-            v-if="!iconBool"
-            src="../assets/images/albionCypherBlack.png"
-            style="height: 90px; cursor: pointer"
-            @click="returnToIndex"
-          />
-          <img
-            v-else
             src="~assets/images/albionCypherWithoutLetters.png"
-            style="height: 69px; cursor: pointer"
-            @click="returnToIndex"
+            style="height: 50px"
           />
+          <span v-if="!iconBool" class="title-header">Albion Metrics</span>
         </div>
         <q-space />
-        <q-tabs v-model="tab" shrink stretch class="tabs-header">
+        <q-tabs
+          v-model="tab"
+          shrink
+          stretch
+          class="tabs-header"
+          v-if="!iconBool"
+        >
           <div class="flex row items-center" style="height: 100%">
             <nav class="nav-cypher" role="navigation">
               <ul class="navigation-cypher">
@@ -50,7 +49,8 @@
             </nav>
           </div>
         </q-tabs>
-        <SideBar :items="tabs" :iconBool="iconBool" />
+        <DarkModeToggle v-if="!iconBool" />
+        <SideBar :items="tabs" :iconBool="iconBool" v-if="iconBool" />
       </q-toolbar>
     </q-header>
   </div>
@@ -60,6 +60,7 @@ import SideBar from "src/components/SideBar.vue";
 import { sideBarBool } from "../stores/sideBar";
 import { useRouter } from "vue-router";
 import { defineComponent, ref, onMounted } from "vue";
+import DarkModeToggle from "src/components/darkModeToggle.vue";
 export default defineComponent({
   setup() {
     const showSidebar = sideBarBool();
@@ -111,18 +112,22 @@ export default defineComponent({
     });
     return { tab, iconBool, tabs, returnToIndex };
   },
-  components: { SideBar },
+  components: { SideBar, DarkModeToggle },
 });
 </script>
 <style lang="scss">
+body.body--dark {
+  .q-header {
+    border-bottom: 2px solid $divider-dark;
+  }
+}
 .q-header {
-  height: 86px;
+  height: 70px;
   background-color: white;
 }
 .q-menu {
   .q-list {
     .q-item {
-      //margin: 0;
       padding: 0;
       .q-tab {
         width: 100%;
@@ -133,6 +138,15 @@ export default defineComponent({
 }
 .toolbar-cypher {
   padding: 0 30px;
+  .logo-header {
+    color: black;
+    cursor: pointer;
+    .title-header {
+      font-weight: bold;
+      font-size: 20px;
+      margin-left: 5px;
+    }
+  }
 }
 .nav-cypher {
   display: inline-block;
@@ -164,12 +178,6 @@ export default defineComponent({
     .q-btn__content {
       padding: 0 10px;
     }
-  }
-}
-
-@media screen and (max-width: 800px) {
-  .tabs-header {
-    display: none;
   }
 }
 </style>

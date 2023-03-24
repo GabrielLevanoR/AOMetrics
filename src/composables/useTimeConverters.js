@@ -4,10 +4,10 @@ export default function useConvertTimeISO() {
     return {
       date: `${String(newDate.getDate()).padStart(2, "0")}/${String(
         newDate.getMonth() + 1
-      ).padStart(2, "0")}/${String(newDate.getFullYear()).padStart(2, "0")}`,
-      time: `${String(newDate.getHours()).padStart(2, "0")}:${String(
-        newDate.getMinutes()
-      ).padStart(2, "0")}:${String(newDate.getSeconds()).padStart(2, "0")}`,
+      ).padStart(2, "0")}/${String(newDate.getUTCFullYear()).padStart(2, "0")}`,
+      time: `${String(newDate.getUTCHours()).padStart(2, "0")}:${String(
+        newDate.getUTCMinutes()
+      ).padStart(2, "0")}:${String(newDate.getUTCSeconds()).padStart(2, "0")}`,
     };
   };
   const timeBetweenDates = (date1, date2) => {
