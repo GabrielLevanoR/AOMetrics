@@ -1,10 +1,11 @@
-import { createApp } from "vue";
-import { createGtag } from "vue-gtag-next";
+import { boot } from "quasar/wrappers";
+import VueGtag from "vue-gtag";
 
-export default ({ app }) => {
-  const gtag = createGtag({
-    property: "UA-XXXXXXXXX-X",
-    debug: false,
-  });
-  app.use(gtag);
-};
+export default boot(({ app }) => {
+  const gtag = {
+    config: {
+      id: "G-6QHL1W56ZJ",
+    },
+  };
+  app.use(VueGtag, gtag);
+});
