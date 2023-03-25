@@ -2,7 +2,7 @@
   "name": "albion-front",
   "version": "0.0.1",
   "description": "albion frontend ",
-  "productName": "Quasar App",
+  "productName": "Albion Metrics",
   "author": "Gabriel <glevanoalc@gmail.com>",
   "private": true,
   "scripts": {
