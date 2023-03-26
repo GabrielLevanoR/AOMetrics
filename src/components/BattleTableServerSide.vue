@@ -397,7 +397,6 @@ export default {
         });
       } else {
         let stringIds = ids.join(",");
-        console.log(stringIds);
         route.push({
           name: "BattleSelected",
           params: { id: stringIds },

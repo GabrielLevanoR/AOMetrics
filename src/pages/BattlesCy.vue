@@ -180,7 +180,6 @@ export default defineComponent({
       await getRecentBattles();
     };
     const getIdsRequest = () => {
-      console.log(child.value);
       child.value.filterIds();
     };
     setInterval(async () => {
