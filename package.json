@@ -1,7 +1,7 @@
 {
   "name": "albion-front",
   "version": "0.0.1",
-  "description": "albion frontend ",
+  "description": "With Albion metrics get a report of the latest and biggest battles in Albion Online with stats like: highest average IP, number of kills, players, group composition and more",
   "productName": "Albion Metrics",
   "author": "Gabriel <glevanoalc@gmail.com>",
   "private": true,

@@ -143,7 +143,8 @@ export default defineComponent({
           },
           keywords: {
             name: "keywords",
-            content: "Albion Online, Battles, Battle report, killboard",
+            content:
+              "albion metrics, albionmetrics, albion online battles, Albion Online, Battles, Battle report, killboard",
           },
         },
       };

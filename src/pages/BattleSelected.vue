@@ -900,9 +900,14 @@ export default {
       getBattle();
     });
     useMeta(() => {
+      let ids = route.params.id.split(",");
       return {
         title: `Albion Metrics ${
-          battle.value ? " | Battle: " + battle.value.id : ""
+          battle.value
+            ? ids.length > 1
+              ? " | Battle: " + route.params.id
+              : " | Battle: " + ids[0]
+            : ""
         }`,
         meta: {
           description: {
@@ -913,7 +918,7 @@ export default {
           keywords: {
             name: "keywords",
             content:
-              "Albion Online, Battles, Battle report, killboard, east server, west server",
+              "albion metrics, albionmetrics, albion online battles, Albion Online, Battles, Battle report, killboard, east server, west server",
           },
         },
       };
