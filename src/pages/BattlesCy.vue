@@ -20,22 +20,39 @@
       <q-card class="card-section">
         <q-card-section class="custom-section">
           <span class="title">RECENT BATTLES</span>
-          <q-select
-            outlined
-            v-model="selectedServer.recent"
-            :options="options"
-            label="Server"
-          />
+          <div class="options-header">
+            <q-btn
+              color="primary"
+              text-color="white"
+              label="Show multiple battle"
+              class="q-mr-md"
+              v-if="multiBattle"
+              v-on:click="getIdsRequest"
+            />
+            <q-select
+              outlined
+              v-model="selectedServer.recent"
+              :options="options"
+              label="Server"
+            />
+          </div>
         </q-card-section>
         <q-separator inset />
         <q-card-section>
           <div class="custom-section">
             <div>Searching for new battles in: {{ countdown }}</div>
-            <q-toggle
-              v-model="largeBattle"
-              label="Only big battles"
-              left-label
-            />
+            <div class="more-options">
+              <q-toggle
+                v-model="largeBattle"
+                label="Only big battles"
+                left-label
+              />
+              <q-toggle
+                v-model="multiBattle"
+                label="Multiple battles"
+                left-label
+              />
+            </div>
           </div>
           <q-input
             outlined
@@ -52,6 +69,8 @@
       <BattleTableServerSide
         :battles="recentBattles"
         @serverSide="requestBattles"
+        :multiBattle="multiBattle"
+        ref="child"
       />
     </div>
   </q-page>
@@ -62,13 +81,34 @@ import BattleTable from "src/components/BattleTable.vue";
 import BattleTableServerSide from "src/components/BattleTableServerSide.vue";
 import { defineComponent, onMounted, ref, watch, reactive } from "vue";
 import useTimeConverters from "../composables/useTimeConverters.js";
+import { useMeta } from "quasar";
+
 export default defineComponent({
   setup() {
+    useMeta(() => {
+      return {
+        title: "Albion Metrics | Battle reports & Search battle",
+        meta: {
+          description: {
+            name: "description",
+            content:
+              "Get a report of the most recent and big battles in Albion Online, search by player name, guild, alliance and server to get a better search result",
+          },
+          keywords: {
+            name: "keywords",
+            content:
+              "Albion Online, Battles, Battle report, killboard, east server, west server",
+          },
+        },
+      };
+    });
     const { toFormatDate } = useTimeConverters();
     const topFame = ref([]);
     const offset = ref(0);
     const countdown = ref(60);
     const largeBattle = ref(true);
+    const multiBattle = ref(false);
+    const child = ref(null);
     const searchRecentBattle = ref("");
     const options = ref(["All", "West", "East"]);
     const selectedServer = reactive({ top: "All", recent: "All" });
@@ -91,7 +131,6 @@ export default defineComponent({
     };
     const getRecentBattles = async () => {
       try {
-        recentBattles.value = {};
         let server =
           selectedServer.recent === "All" ? "" : selectedServer.recent;
         server = server.toLocaleLowerCase();
@@ -100,7 +139,6 @@ export default defineComponent({
         );
         recentBattles.value = response.data;
         recentBattles.value = stylingRows(recentBattles.value);
-        console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -141,6 +179,10 @@ export default defineComponent({
       offset.value = propert.pagination.page * 20 - 20;
       await getRecentBattles();
     };
+    const getIdsRequest = () => {
+      console.log(child.value);
+      child.value.filterIds();
+    };
     setInterval(async () => {
       countdown.value--;
       if (countdown.value === 0) {
@@ -163,6 +205,9 @@ export default defineComponent({
       largeBattle,
       getRecentBattles,
       countdown,
+      multiBattle,
+      getIdsRequest,
+      child,
     };
   },
   components: { BattleTable, BattleTableServerSide },
@@ -200,6 +245,13 @@ body.body--dark {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      .more-options {
+        display: flex;
+        flex-direction: row;
+      }
+      .options-header {
+        display: flex;
+      }
       .q-select {
         min-width: 150px;
       }
@@ -208,7 +260,7 @@ body.body--dark {
       }
     }
   }
-  @media screen and(max-width:470px) {
+  @media screen and(max-width:610px) {
     .card-section {
       text-align: center;
       .title {
@@ -219,6 +271,20 @@ body.body--dark {
         justify-content: center;
         .q-select {
           min-width: 100%;
+        }
+      }
+    }
+    :deep(.custom-section) {
+      flex-direction: column;
+      justify-content: center !important;
+      align-items: center !important;
+      .options-header {
+        width: 100%;
+        flex-direction: column;
+
+        .q-btn {
+          margin: 0 0 10px 0;
+          width: 100%;
         }
       }
     }

@@ -142,7 +142,7 @@ tr {
 }
 .first-row-style {
   font-weight: bold;
-  animation: colorRotate 7.5s linear 0s infinite;
+  animation: colorRotate 6.5s linear 0s infinite !important;
 
   @keyframes colorRotate {
     from {

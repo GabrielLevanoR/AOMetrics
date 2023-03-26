@@ -16,7 +16,7 @@
     <div class="battle-desc q-pa-md">
       <q-card>
         <q-card-section class="custom-section">
-          <div>
+          <div class="back-arrow-icon">
             <q-icon
               name="arrow_back_ios_new"
               size="1.5em"
@@ -547,6 +547,7 @@ import ItemRender from "src/components/itemRender.vue";
 import WrongData from "src/components/wrongData.vue";
 import CompositionPaty from "src/components/compositionPaty.vue";
 import WrongSearch from "src/components/WrongSearch.vue";
+import { useMeta } from "quasar";
 
 export default {
   components: {
@@ -736,7 +737,13 @@ export default {
     const loading = ref(1);
     const getBattle = async () => {
       try {
-        const response = await api.get(`battles/battle/${route.params.id}`);
+        let response;
+        let ids = route.params.id.split(",");
+        if (ids.length > 1) {
+          response = await api.get(`battles/multilog/${route.params.id}`);
+        } else {
+          response = await api.get(`battles/battle/${ids[0]}`);
+        }
         if (response.data) {
           battle.value = {
             ...response.data,
@@ -892,6 +899,25 @@ export default {
     onMounted(() => {
       getBattle();
     });
+    useMeta(() => {
+      return {
+        title: `Albion Metrics ${
+          battle.value ? " | Battle: " + battle.value.id : ""
+        }`,
+        meta: {
+          description: {
+            name: "description",
+            content:
+              "Battle report with a large amount of statistics and useful data to analyze the battles.",
+          },
+          keywords: {
+            name: "keywords",
+            content:
+              "Albion Online, Battles, Battle report, killboard, east server, west server",
+          },
+        },
+      };
+    });
     return {
       orderEquipment,
       deleteNulls,
@@ -925,6 +951,11 @@ body.body--dark {
   }
   .first-row-style {
     background-color: rgba(136, 136, 136, 0.199);
+  }
+  .back-arrow-icon {
+    .q-icon {
+      color: orange !important;
+    }
   }
 }
 .battle-desc {

@@ -126,11 +126,28 @@ import { api } from "src/boot/axios";
 import CarouselNews from "src/components/CarouselNews.vue";
 import OfferCy from "src/components/OfferCy.vue";
 import { defineComponent, ref, onMounted } from "vue";
+import { useMeta } from "quasar";
 
 export default defineComponent({
   name: "IndexPage",
   components: { OfferCy, CalcOffer, GraphOffer, ReportOffer, CarouselNews },
   setup() {
+    useMeta(() => {
+      return {
+        title: "Albion Metrics | Battle reports",
+        meta: {
+          description: {
+            name: "description",
+            content:
+              "Get a report of the most recent and big battles in Albion Online with statistics like: Highest average IP, amount of kills, players, composition party and more",
+          },
+          keywords: {
+            name: "keywords",
+            content: "Albion Online, Battles, Battle report, killboard",
+          },
+        },
+      };
+    });
     const cardsComm = ref([]);
     const cardsDev = ref([]);
     const getDevNews = async () => {
@@ -167,7 +184,7 @@ export default defineComponent({
 <style scoped lang="scss">
 body.body--dark {
   .back-gradient-under {
-    background-color: rgb(161, 161, 161);
+    background-color: rgb(179, 176, 176);
   }
   .dowload-albion {
     background-color: rgb(161, 161, 161);
@@ -178,7 +195,8 @@ body.body--dark {
       .body-container {
         h4,
         .description,
-        .icon-bordered, span {
+        .icon-bordered,
+        span {
           background-color: $darkMode;
         }
       }

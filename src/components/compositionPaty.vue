@@ -108,7 +108,12 @@ export default {
           ).sort((a, b) => b[1] - a[1]);
         }
       }
-      return guildCounts;
+      const sortKey = Object.keys(guildCounts).sort(
+        (a, b) => guildCounts[b].fame - guildCounts[a].fame
+      );
+      const sortFame = {};
+      sortKey.forEach((llave) => (sortFame[llave] = guildCounts[llave]));
+      return sortFame;
     };
     return { compositionPartys, formatNumber };
   },

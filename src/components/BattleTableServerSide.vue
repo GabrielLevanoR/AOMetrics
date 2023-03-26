@@ -2,6 +2,140 @@
   <div
     style="width: 100%; display: flex; justify-content: center; margin: 10px 0"
     ref="serverTable"
+    v-if="multiBattle"
+  >
+    <q-table
+      style="max-width: 1200px; width: 100%"
+      :rows="battles.docs"
+      :rows-per-page-options="[20]"
+      v-model:pagination="pagination"
+      :columns="columns"
+      row-key="id"
+      :loading="!battles.docs"
+      @request="onRequest"
+      selection="multiple"
+      v-model:selected="selected"
+    >
+      <template v-slot:loading>
+        <q-inner-loading showing color="orange" />
+      </template>
+      <template v-slot:header-selection="scope">
+        <q-toggle v-model="scope.selected" v-if="false" />
+        SELECTION
+      </template>
+      <template v-slot:pagination="scope">
+        <q-btn
+          v-if="scope.pagesNumber > 2"
+          icon="first_page"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isFirstPage"
+          @click="
+            () => {
+              scope.firstPage();
+              scrollToTable();
+            }
+          "
+        />
+
+        <q-btn
+          icon="chevron_left"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isFirstPage"
+          @click="
+            () => {
+              scope.prevPage();
+              scrollToTable();
+            }
+          "
+        />
+
+        <q-btn
+          icon="chevron_right"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isLastPage"
+          @click="
+            () => {
+              scope.nextPage();
+              scrollToTable();
+            }
+          "
+        />
+
+        <q-btn
+          v-if="scope.pagesNumber > 2"
+          icon="last_page"
+          color="grey-8"
+          round
+          dense
+          flat
+          :disable="scope.isLastPage"
+          @click="
+            () => {
+              scope.lastPage();
+              scrollToTable();
+            }
+          "
+        />
+      </template>
+      <template v-slot:body="props">
+        <q-tr
+          :props="props"
+          @click="addRow(props.row)"
+          :class="{ 'first-row-style': props.row.firstStyle && applyStyle }"
+        >
+          <q-td key="select">
+            <q-checkbox v-model="props.selected" />
+          </q-td>
+          <q-td :props="props" key="time">
+            <div class="row-column">
+              <span>{{ props.row.date }}</span>
+              <span>{{ props.row.time }}</span>
+            </div>
+          </q-td>
+          <q-td :props="props" key="guilds">
+            <div class="row-row">
+              <span
+                v-for="guild in props.row.guilds.list.slice(0, 2)"
+                :key="guild"
+              >
+                <span class="spacing"
+                  >{{ guild }}<span class="text-weight-bold">,</span>
+                </span>
+              </span>
+              <span
+                class="text-italic spacing"
+                v-if="props.row.guilds.list.length > 2"
+              >
+                ... and others</span
+              >
+            </div>
+          </q-td>
+          <q-td :props="props" key="players">
+            {{ props.row.players.list.length }}
+          </q-td>
+          <q-td :props="props" key="totalKills">
+            {{ formatNumber(props.row.totalKills) }}
+          </q-td>
+          <q-td :props="props" key="totalFame">
+            {{ formatNumber(props.row.totalFame) }}
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+  </div>
+  <div
+    style="width: 100%; display: flex; justify-content: center; margin: 10px 0"
+    ref="serverTable"
+    v-else
   >
     <q-table
       style="max-width: 1200px; width: 100%"
@@ -128,6 +262,8 @@
 import { ref, computed, onUpdated } from "vue";
 import { useRouter } from "vue-router";
 import useFormatNumber from "../composables/useFormatNumber.js";
+import { useQuasar } from "quasar";
+import router from "src/router";
 
 export default {
   props: {
@@ -139,8 +275,14 @@ export default {
       type: Object,
       required: true,
     },
+    multiBattle: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   setup(props, { emit }) {
+    const $q = useQuasar();
     const pagination = ref({
       page: 1,
       rowsPerPage: 20,
@@ -181,6 +323,14 @@ export default {
         field: "totalFame",
       },
     ]);
+    const selected = ref([]);
+    const getIdsRequest = () => {
+      return selected.value.length === 0
+        ? ""
+        : `${selected.value.length} record${
+            selected.value.length > 1 ? "s" : ""
+          } selected of ${props.battles.docs.length}`;
+    };
     const scrollToTable = () => {
       const table = serverTable.value;
       const tablePos =
@@ -195,6 +345,15 @@ export default {
     };
     const redirectBattle = (row) => {
       route.push({ name: "BattleSelected", params: { id: row.id } });
+    };
+    const addRow = (row) => {
+      if (selected.value.find((battle) => battle.id === row.id) != undefined) {
+        selected.value = selected.value.filter(
+          (battle) => battle.id !== row.id
+        );
+      } else {
+        selected.value.push(row);
+      }
     };
     const filteredRows = computed(() => {
       if (!searchQuery.value) {
@@ -217,7 +376,36 @@ export default {
       pagination.value.rowsPerPage = props.battles.limit;
       pagination.value.page = props.battles.page ? props.battles.page : 0;
     });
+    const filterIds = () => {
+      let ids = [];
+      ids = selected.value.map((battle) => battle.id);
+      if (ids.length < 2) {
+        $q.notify({
+          progress: true,
+          position: "top-right",
+          message: "Select at least 2 battles",
+          color: "primary",
+          actions: [
+            {
+              label: "Dismiss",
+              color: "white",
+              handler: () => {
+                /* ... */
+              },
+            },
+          ],
+        });
+      } else {
+        let stringIds = ids.join(",");
+        console.log(stringIds);
+        route.push({
+          name: "BattleSelected",
+          params: { id: stringIds },
+        });
+      }
+    };
     return {
+      filterIds,
       columns,
       formatNumber,
       redirectBattle,
@@ -226,6 +414,9 @@ export default {
       pagination,
       serverTable,
       scrollToTable,
+      getIdsRequest,
+      selected,
+      addRow,
     };
   },
 };
@@ -239,6 +430,7 @@ export default {
   display: flex;
   flex-direction: row;
 }
+
 .spacing {
   margin-left: 5px;
 }
