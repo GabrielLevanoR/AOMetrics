@@ -48,7 +48,6 @@ export default defineComponent({
 .custom-page {
   display: flex;
   flex-direction: column;
-  background-color: rgba(252, 219, 179, 0.123);
   .most-fame {
     margin: 10px 15px 20px 15px;
 

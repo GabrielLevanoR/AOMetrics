@@ -71,7 +71,7 @@
         />
         <div class="body-container">
           <h4>Download Albion Online</h4>
-          <div class="description">
+          <div class="des-albion">
             Albion Online is a fantasy sandbox MMORPG featuring a player-driven
             economy, classless combat system, and intense PvP battles. Explore a
             vast open world full of danger and opportunity.
@@ -195,7 +195,7 @@ body.body--dark {
       }
       .body-container {
         h4,
-        .description,
+        .des-albion,
         .icon-bordered,
         span {
           background-color: $darkMode;
@@ -311,7 +311,7 @@ body.body--dark {
         padding: 15px;
         margin: 0 0 10px;
       }
-      .description {
+      .des-albion {
         background: white;
         border-radius: 15px;
         padding: 15px;

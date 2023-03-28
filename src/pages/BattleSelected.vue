@@ -25,7 +25,11 @@
             />
             <span class="title">BATTLE REPORT</span>
           </div>
-          <OnClickTooltip :textToDisplay="battle.id" />
+          <OnClickTooltip
+            :textToDisplay="battle.id.join(', ')"
+            v-if="Array.isArray(battle.id)"
+          />
+          <OnClickTooltip :textToDisplay="battle.id" v-else />
         </q-card-section>
       </q-card>
       <div
@@ -772,46 +776,68 @@ export default {
       }
     };
     const buildCharts = () => {
-      let toShowChart;
       if (battle.value.alliances.alliances.length) {
-        toShowChart = battle.value.alliances.alliances.slice(0, 4);
+        const battleKills = battle.value.alliances.alliances.map((el) => {
+          return { kills: el.kills, name: el.name };
+        });
+        const battleFame = battle.value.alliances.alliances.map((el) => {
+          return { killFame: el.killFame, name: el.name };
+        });
+        const battlePlayers = battle.value.alliances.alliances.map((el) => {
+          return { players: el.totalPlayers, name: el.name };
+        });
+        const battleDeaths = battle.value.alliances.alliances.map((el) => {
+          return { deaths: el.deaths, name: el.name };
+        });
+        const batlleIpAv = battle.value.alliances.alliances.map((el) => {
+          return { ip: el.averageIp, name: el.name };
+        });
+        pushToShowCharts(battleFame, "FameChart", "killFame");
+        pushToShowCharts(battleKills, "killFameChart", "kills");
+        pushToShowCharts(battlePlayers, "playersChart", "players");
+        pushToShowCharts(battleDeaths, "deathsChart", "deaths");
+        pushToShowCharts(batlleIpAv, "ipChart", "ip");
       } else {
-        toShowChart = battle.value.guilds.guilds.slice(0, 4);
+        const battleKills = battle.value.guilds.guilds.map((el) => {
+          return { kills: el.kills, name: el.name };
+        });
+        const battleFame = battle.value.guilds.guilds.map((el) => {
+          return { killFame: el.killFame, name: el.name };
+        });
+        const battlePlayers = battle.value.guilds.guilds.map((el) => {
+          return { players: el.totalPlayers, name: el.name };
+        });
+        const battleDeaths = battle.value.guilds.guilds.map((el) => {
+          return { deaths: el.deaths, name: el.name };
+        });
+        const batlleIpAv = battle.value.guilds.guilds.map((el) => {
+          return { ip: el.averageIp, name: el.name };
+        });
+        pushToShowCharts(battleFame, "FameChart", "killFame");
+        pushToShowCharts(battleKills, "killFameChart", "kills");
+        pushToShowCharts(battlePlayers, "playersChart", "players");
+        pushToShowCharts(battleDeaths, "deathsChart", "deaths");
+        pushToShowCharts(batlleIpAv, "ipChart", "ip");
       }
-      let customCategories = toShowChart.map((el) => {
-        return el.name;
+    };
+    const pushToShowCharts = (chartData, chartName, variable) => {
+      let orderData = chartData.sort((a, b) => {
+        if (a[variable] < b[variable]) {
+          return 1;
+        }
+        if (a[variable] > b[variable]) {
+          return -1;
+        }
+        return 0;
       });
-      let killsCategories = toShowChart.map((el) => {
-        return el.kills;
+      orderData = orderData.slice(0, 4);
+      const names = orderData.map((obj) => {
+        return obj.name;
       });
-      let fameCategories = toShowChart.map((el) => {
-        return el.killFame;
+      const chartProperty = orderData.map((obj) => {
+        return obj[variable];
       });
-      let playersCategories = toShowChart.map((el) => {
-        return el.totalPlayers;
-      });
-      let deathsCategories = toShowChart.map((el) => {
-        return el.deaths;
-      });
-      let ipCategories = toShowChart.map((el) => {
-        return el.averageIp;
-      });
-
-      chartsToShow.value.push(
-        formatData(customCategories, fameCategories, "FameChart")
-      );
-      chartsToShow.value.push(
-        formatData(customCategories, killsCategories, "killFameChart")
-      );
-      chartsToShow.value.push(
-        formatData(customCategories, playersCategories, "playersChart")
-      );
-      chartsToShow.value.push(
-        formatData(customCategories, deathsCategories, "deathsChart")
-      );
-      chartsToShow.value.push(
-        formatData(customCategories, ipCategories, "ipChart")
-      );
+      chartsToShow.value.push(formatData(names, chartProperty, chartName));
     };
     const formatData = (tags, valueTag, nameSeries) => {
       for (let i = 0; i < valueTag.length; i++) {
@@ -900,7 +926,10 @@ export default {
       getBattle();
     });
     useMeta(() => {
-      let ids = route.params.id.split(",");
+      let ids = [];
+      if (route.params.id) {
+        ids = route.params.id.split(",");
+      }
       return {
         title: `Albion Metrics ${
           battle.value
