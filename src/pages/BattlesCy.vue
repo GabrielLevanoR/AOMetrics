@@ -1,5 +1,6 @@
 <template>
   <q-page class="custom-page">
+    <TopGuilds />
     <div class="container-most-fame q-pt-md q-pb-md">
       <div class="most-fame">
         <q-card class="card-section">
@@ -82,6 +83,7 @@ import BattleTableServerSide from "src/components/BattleTableServerSide.vue";
 import { defineComponent, onMounted, ref, watch, reactive } from "vue";
 import useTimeConverters from "../composables/useTimeConverters.js";
 import { useMeta } from "quasar";
+import TopGuilds from "src/components/TopGuilds.vue";
 
 export default defineComponent({
   setup() {
@@ -209,7 +211,7 @@ export default defineComponent({
       child,
     };
   },
-  components: { BattleTable, BattleTableServerSide },
+  components: { BattleTable, BattleTableServerSide, TopGuilds },
 });
 </script>
 <style lang="scss" scoped>

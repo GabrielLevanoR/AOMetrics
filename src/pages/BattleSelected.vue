@@ -205,7 +205,7 @@
             </q-card>
           </div>
           <div class="stats-card">
-            <q-card class="q-mb-sm">
+            <q-card class="q-mb-sm card-hight-player">
               <q-card-section>
                 <div class="flex justify-between">
                   <div class="title">HIGHEST ASSISTS</div>
@@ -246,7 +246,7 @@
               </q-card-section>
             </q-card>
             <q-card
-              class="q-mb-sm"
+              class="q-mb-sm card-hight-player"
               v-if="battle.highestDamagePlayer.players[0].totalDamage"
             >
               <q-card-section>
@@ -287,16 +287,18 @@
                 </div>
               </q-card-section>
             </q-card>
-            <q-card
-              class="q-mb-sm"
-              v-if="battle.highestHealingPlayer.players[0].totalHealing"
-            >
+            <q-card class="q-mb-sm card-hight-player">
               <q-card-section>
                 <div class="flex justify-between">
                   <div class="title">HIGHEST HEALING</div>
-                  <WrongData />
+                  <WrongData
+                    v-if="battle.highestHealingPlayer.players[0].totalHealing"
+                  />
                 </div>
-                <div class="high-player">
+                <div
+                  class="high-player"
+                  v-if="battle.highestHealingPlayer.players[0].totalHealing"
+                >
                   <div class="description q-mr-sm">
                     <div class="flex justify-between">
                       <span>Name:</span>
@@ -327,9 +329,14 @@
                     :item-count="1"
                   />
                 </div>
+                <div class="text-center" v-else>
+                  <span class="text-weight-bold text-h6 text-overline"
+                    >No Data</span
+                  >
+                </div>
               </q-card-section>
             </q-card>
-            <q-card>
+            <q-card class="q-mb-sm card-hight-player">
               <q-card-section>
                 <div class="flex justify-between">
                   <div class="title">HIGHEST KILLS</div>
@@ -474,7 +481,9 @@
         <div class="party-composition q-mt-sm">
           <q-card>
             <q-card-section>
-              <div class="flex justify-between q-mt-md q-ml-sm">
+              <div
+                class="flex justify-between q-mt-md q-ml-sm header-composition"
+              >
                 <div class="title flex items-center">PARTY COMPOSITION</div>
                 <q-btn-toggle
                   v-model="compositionOptions"
@@ -526,9 +535,32 @@
                     </template>
                   </q-input>
                 </template>
+                <template v-slot:body="props">
+                  <q-tr :props="props">
+                    <q-td
+                      v-for="col in props.cols"
+                      :key="col.name"
+                      :props="props"
+                    >
+                      <div v-if="col.name === 'weapon'" class="text-center">
+                        <ItemRender
+                          :item-name="col.value.mainhand"
+                          :item-quality="0"
+                          :item-count="1"
+                          v-if="col.value"
+                        />
+                        <span v-else>-</span>
+                      </div>
+                      <div v-else>{{ col.value }}</div>
+                    </q-td>
+                  </q-tr>
+                </template>
               </q-table>
             </q-card-section>
           </q-card>
+        </div>
+        <div class="battle-players-history q-mt-sm">
+          <BattleHistory :battleHistory="battle.history" />
         </div>
       </div>
     </div>
@@ -552,6 +584,7 @@ import WrongData from "src/components/wrongData.vue";
 import CompositionPaty from "src/components/compositionPaty.vue";
 import WrongSearch from "src/components/WrongSearch.vue";
 import { useMeta } from "quasar";
+import BattleHistory from "src/components/BattleHistory.vue";
 
 export default {
   components: {
@@ -561,6 +594,7 @@ export default {
     WrongData,
     CompositionPaty,
     WrongSearch,
+    BattleHistory,
   },
   setup() {
     const { formatNumber } = useFormatNumber();
@@ -668,6 +702,12 @@ export default {
     ]);
     const columnsPlayers = ref([
       {
+        name: "weapon",
+        label: "Weapon",
+        align: "left",
+        field: (val) => val.equipment,
+      },
+      {
         name: "name",
         label: "Name",
         align: "left",
@@ -677,6 +717,7 @@ export default {
         name: "alliance",
         label: "Alliance",
         align: "left",
+        sortable: true,
         field: "allianceName",
       },
       {
@@ -684,6 +725,7 @@ export default {
         label: "Guild",
         align: "left",
         field: "guildName",
+        sortable: true,
       },
       {
         name: "fame",
@@ -712,7 +754,7 @@ export default {
         label: "Damage",
         align: "left",
         sortable: true,
-        field: (val) => (val.totalDamage ? val.totalDamage : ""),
+        field: (val) => (val.totalDamage ? val.totalDamage : "-"),
         format: (val) => formatNumber(val),
       },
       {
@@ -720,7 +762,7 @@ export default {
         label: "Heal",
         align: "left",
         sortable: true,
-        field: (val) => (val.totalHealing ? val.totalHealing : ""),
+        field: (val) => (val.totalHealing ? val.totalHealing : "-"),
         format: (val) => formatNumber(val),
       },
       {
@@ -728,7 +770,7 @@ export default {
         label: "IP",
         align: "left",
         sortable: true,
-        field: (val) => (val.ip ? val.ip : ""),
+        field: (val) => (val.ip ? val.ip : "-"),
       },
     ]);
     const showLessAlliances = ref(true);
@@ -764,6 +806,7 @@ export default {
             battle.value.alliances.alliances[0].firstStyle = true;
           }
           battle.value.guilds.guilds[0].firstStyle = true;
+          console.log(battle.value);
           nextTick(() => {
             buildCharts();
           });
@@ -1073,6 +1116,15 @@ body.body--dark {
     flex-wrap: wrap;
     .stats-card {
       width: calc(50% - 0.36em);
+      .card-hight-player {
+        height: calc(100% / 4 - 0.43em);
+        display: flex;
+        align-items: center;
+        width: 100%;
+        .q-card__section {
+          width: 100%;
+        }
+      }
       .high-player {
         display: flex;
         justify-content: center;
@@ -1115,6 +1167,35 @@ body.body--dark {
       }
       100% {
         color: #ff8a25;
+      }
+    }
+  }
+}
+@media screen and (max-width: 670px) {
+  :deep(.q-table__top) {
+    flex-direction: column;
+    text-align: center;
+    .title,
+    .q-field {
+      width: 100%;
+    }
+    .q-toggle {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 !important;
+      width: 100%;
+    }
+  }
+  @media screen and (max-width: 430px) {
+    .header-composition {
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      margin-left: 0;
+      .title {
+        display: block !important;
+        width: 100%;
+        margin-bottom: 10px;
       }
     }
   }
