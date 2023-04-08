@@ -806,7 +806,6 @@ export default {
             battle.value.alliances.alliances[0].firstStyle = true;
           }
           battle.value.guilds.guilds[0].firstStyle = true;
-          console.log(battle.value);
           nextTick(() => {
             buildCharts();
           });
